@@ -6,20 +6,43 @@ pipeline {
         maven 'Maven-3'
     }
 
+    environment {
+        MAVEN_OPTS = '-Xmx1024m'
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/<your-username>/spring-petclinic.git'
+                    url: 'https://github.com/Rosh123456789/spring-petclinic.git'
             }
         }
 
-        stage('Build, Test & Checkstyle') {
+        stage('Clean') {
+            steps {
+                bat 'mvn clean'
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                bat 'mvn compile'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+
+        stage('Build & Verify') {
             steps {
                 bat 'mvn clean verify'
             }
         }
+
 
         stage('Package') {
             steps {
