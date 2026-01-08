@@ -38,7 +38,7 @@ pipeline {
                 bat '''
                 docker stop %IMAGE_NAME% >nul 2>&1
                 docker rm %IMAGE_NAME% >nul 2>&1
-                docker run -d --name %IMAGE_NAME% -p 8080:8080 %IMAGE_NAME%:%BUILD_NUMBER%
+                docker run -d --name %IMAGE_NAME% -p 8081:8080 %IMAGE_NAME%:%BUILD_NUMBER%
                 '''
             }
         }
