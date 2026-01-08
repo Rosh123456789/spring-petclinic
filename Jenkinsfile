@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        MAVEN_OPTS = '-Xmx1024m'
+        IMAGE_NAME = "petclinic"
     }
 
     stages {
@@ -19,44 +19,41 @@ pipeline {
             }
         }
 
-        stage('Clean') {
-            steps {
-                bat 'mvn clean'
-            }
-        }
-
-        stage('Compile') {
-            steps {
-                bat 'mvn compile'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-
         stage('Build & Verify') {
             steps {
                 bat 'mvn clean verify'
             }
         }
 
-
         stage('Package') {
             steps {
                 bat 'mvn package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t %IMAGE_NAME%:%BUILD_NUMBER% .'
+            }
+        }
+
+        stage('Docker Deploy') {
+            steps {
+                bat '''
+                docker stop %IMAGE_NAME% || exit 0
+                docker rm %IMAGE_NAME% || exit 0
+                docker run -d --name %IMAGE_NAME% -p 8080:8080 %IMAGE_NAME%:%BUILD_NUMBER%
+                '''
             }
         }
     }
 
     post {
         success {
-            echo ' CI Pipeline Successful'
+            echo ' CI/CD with Docker completed successfully'
         }
         failure {
-            echo ' CI Pipeline Failed'
+            echo ' CI/CD pipeline failed'
         }
     }
 }
